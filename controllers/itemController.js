@@ -1,8 +1,20 @@
 var Item = require("../models/item");
+var Category = require("../models/category");
+var async = require("async");
 
 exports.index = function(req, res) {
-    res.send('NOT IMPLEMENTED: Site Home Page');
+    async.parallel({
+        item_count: function(callback) {
+            Item.countDocuments({},callback);
+        },
+        category_count: function(callback) {
+            Category.countDocuments({},callback);
+        },
+    }, function(err, results) {
+        res.render("index", { title: "Inventory app", error: err, data: results });
+    });
 };
+
 // Display list of all Items.
 exports.item_list = function(req, res) {
     res.send("NOT IMPLEMENTED: Item list");
@@ -42,3 +54,4 @@ exports.item_update_get = function(req, res) {
 exports.item_update_post = function(req, res) {
     res.send("NOT IMPLEMENTED: Item update POST");
 };
+
