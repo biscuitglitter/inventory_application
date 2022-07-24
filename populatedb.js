@@ -1,11 +1,21 @@
+#! /usr/bin/env node
+
+// Get arguments passed on command line
 var userArgs = process.argv.slice(2);
+/*
+if (!userArgs[0].startsWith("mongodb")) {
+    console.log("ERROR: You need to specify a valid mongodb URL as the first argument");
+    return
+}
+*/
+
 var async = require("async")
 var Item = require("./models/item")
 var Category = require("./models/category")
 
 var mongoose = require("mongoose");
 var mongoDB = userArgs[0];
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
@@ -34,13 +44,13 @@ function categoryCreate(name, description, cb) {
 function createCategories(cb) {
   async.parallel([
     function (callback) {
-      categoryCreate("Socks", "Here we have socks", callback);
+      categoryCreate("Clothes", "Here we have clothes", callback);
     },
     function (callback) {
-      categoryCreate("Shirts", "Here we have shirts", callback);
+      categoryCreate("Perfume", "Here we have perfumes", callback);
     },
     function (callback) {
-      categoryCreate("Skirts", "Here we have skirts", callback);
+      categoryCreate("Furniture", "Here we have furniture", callback);
     }
   ],
     // optional callback
@@ -72,10 +82,13 @@ function itemCreate(title, description, price, category, number_in_stock, cb) {
 function createItems(cb) {
   async.parallel([
     function (callback) {
-      itemCreate("Pink sock", "It"s a pink sock", 145, categories[0], 6, callback);
+      itemCreate("Pink T-shirt", "It's a pink T-shirt", 50, categories[2], 4, callback);
     },
     function (callback) {
-      itemCreate("Red table", "It"s a red table", 122, categories[1], 3, callback);
+      itemCreate("Red table", "It's a red table", 240, categories[1], 3, callback);
+    },
+    function (callback) {
+      itemCreate("Blue closet", "It's a blue closet", 325, categories[1], 2, callback);
     }
   ],
     // optional callback
@@ -93,7 +106,6 @@ async.series([
     }
     else {
       console.log("Items: " + items);
-
     }
     // All done, disconnect from database
     mongoose.connection.close();

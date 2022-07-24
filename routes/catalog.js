@@ -14,10 +14,10 @@ router.get("/", item_controller.index);
 // GET request for creating an Item. NOTE This must come before routes that display Item (uses id).
 router.get("/item/create", item_controller.item_create_get);
 
-// POST request for creating Item.
+// POST request for creating an Item.
 router.post("/item/create", item_controller.item_create_post);
 
-// GET request to delete Item.
+// GET request to delete an Item.
 router.get("/item/:id/delete", item_controller.item_delete_get);
 
 // POST request to delete Item.
@@ -32,8 +32,8 @@ router.post("/item/:id/update", item_controller.item_update_post);
 // GET request for one Item.
 router.get("/item/:id", item_controller.item_detail);
 
-// GET request for list of all Item items.
-router.get("/item", item_controller.item_list);
+// GET request for list of all Items.
+router.get("/items", item_controller.item_list);
 
 /// Category ROUTES ///
 
@@ -59,6 +59,6 @@ router.post("/category/:id/update", category_controller.category_update_post);
 router.get("/category/:id", category_controller.category_detail);
 
 // GET request for list of all categories.
-router.get("/category", category_controller.category_list);
+router.get("/categories", category_controller.category_list);
 
 module.exports = router;

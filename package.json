@@ -10,9 +10,11 @@
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "express-validator": "^6.14.2",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "mongoose": "^6.4.6",
     "morgan": "~1.9.1"
-  }
+  },
+  "engines": { "node": "v16.13.1" }
 }
