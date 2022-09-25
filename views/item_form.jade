@@ -22,6 +22,7 @@ block content
     div.form-group
       label(for="price") Price:
       input#price.form-control(type="text", placeholder="Price" name="price" value=(undefined===item ? "" : item.price) required="true")
+      input#reset.form-control(type="reset", value="reset")
     button.btn.btn-primary(type="submit") Submit
 
   if errors

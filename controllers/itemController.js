@@ -16,7 +16,7 @@ exports.index = function(req, res) {
     });
 };
 
-// Display list of all items.
+// display list of all items
 exports.item_list = function(req, res, next) {
     Item.find({}, "title category price number_in_stock")
       .sort({title : 1})
@@ -24,12 +24,12 @@ exports.item_list = function(req, res, next) {
         if (err) {return next(err)} 
         else {
               // Successful, so render
-              res.render("item_list", { title: "All items", item_list: list_items});
+              res.render("item_list", { title: "All items", item_list: list_items });
           }
       });  
   };  
 
-// Display detail page for a specific item.
+// display detail page for a specific item
 exports.item_detail = function(req, res, next) {
     async.parallel({
         item: function(callback) {
@@ -45,11 +45,11 @@ exports.item_detail = function(req, res, next) {
             return next(err);
         }
         // Successful, so render.
-        res.render("item_detail", { title: results.item.title, item:  results.item } );
+        res.render("item_detail", { title: results.item.title, item: results.item } );
     });
 };
 
-// Display item create form on GET.
+// display item create form on GET
 exports.item_create_get = function(req, res, next) {
     async.parallel({
         items(callback) {
@@ -64,7 +64,7 @@ exports.item_create_get = function(req, res, next) {
     });
 };
 
-// Handle item create on POST.
+// item create on POST
 exports.item_create_post = [
     // Validate and sanitize fields.
     body("title", "Title must not be empty.").trim().isLength({ min: 1 }).escape(),
@@ -81,23 +81,22 @@ exports.item_create_post = [
         // Create a Item object with escaped and trimmed data.
         var item = new Item(
           { title: req.body.title,
-            author: req.body.author,
-            summary: req.body.summary,
-            isbn: req.body.isbn,
-            genre: req.body.genre
+            category: req.body.category,
+            description: req.body.description,
+            price: req.body.price,
            });
 
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/error messages.
 
-            // Get all authors and genres for form.
+            // Get all items and categories for form.
             async.parallel({
                 categories(callback) {
                     Category.find(callback);
                 },
             }, function(err, results) {
                 if (err) { return next(err); }
-                res.render("item_form", { title: "Create item", categories:results.categories, item: item, errors: errors.array() });
+                res.render("item_form", { title: "Create item", categories: results.categories, item: item, errors: errors.array() });
             });
             return;
         }
@@ -112,15 +111,64 @@ exports.item_create_post = [
     }
 ];
 
-// Display Item delete form on GET.
-exports.item_delete_get = function(req, res) {
-    res.send("NOT IMPLEMENTED: Item delete GET");
-};
+// display Item delete form on GET
+exports.item_delete_get = function (req, res, next) {
+    async.parallel(
+      {
+        item: function (callback) {
+          Item.findById(req.params.id).exec(callback);
+        },
+        categories: function (callback) {
+          Category.find({ categories: req.params.id }).exec(callback);
+        },
+      },
+      function (err, results) {
+        if (err) {
+          return next(err);
+        }
+        if (results.items == null) {
+          // No results.
+          res.redirect("/catalog/items");
+        }
+        // Successful, so render.
+        res.render("item_delete", {
+          title: "Delete Item",
+          items: results.items,
+          categories: results.categories,
+        });
+      }
+    );
+  };
 
-// Handle Item delete on POST.
-exports.item_delete_post = function(req, res) {
-    res.send("NOT IMPLEMENTED: Item delete POST");
-};
+// handle Item delete on POST
+exports.item_delete_post = function (req, res, next) {
+    async.parallel(
+      {
+        item: function (callback) {
+          Item.findById(req.body.itemid).exec(callback);
+        },
+        categories: function (callback) {
+          Category.find({ categories: req.body.itemid }).exec(callback);
+        },
+      },
+      function (err, results) {
+        if (err) {
+          return next(err);
+        }
+        // Success.
+        if (results.item_list.length > 0) {
+          Item.findByIdAndRemove(req.body.itemid, function deleteItem(err) {
+            if (err) {
+              return next(err);
+            }
+            // Success - go to items list.
+            res.redirect("/catalog/items");
+          });
+        }
+      }
+    );
+  };
+  
 
 // Display Item update form on GET.
 exports.item_update_get = function(req, res) {

@@ -8,9 +8,8 @@ block content
       li
         a(href=item.url) #{item.title} (#{item.category.name})
         br
-        |  Price: #{item.price}$
+        |  Price: $#{item.price}
         br
-        |  Number in stock: ##{item.number_in_stock}
         hr
 
     else
