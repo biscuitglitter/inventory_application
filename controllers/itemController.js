@@ -71,13 +71,10 @@ exports.item_create_post = [
     body("category", "Category must not be empty.").trim().isLength({ min: 1 }).escape(),
     body("description", "Description must not be empty.").trim().isLength({ min: 1 }).escape(),
     body("price", "Price must not be empty").trim().isLength({ min: 1 }).escape(),
-
     // Process request after validation and sanitization.
     (req, res, next) => {
-
         // Extract the validation errors from a request.
         const errors = validationResult(req);
-
         // Create a Item object with escaped and trimmed data.
         var item = new Item(
           { title: req.body.title,
@@ -85,10 +82,8 @@ exports.item_create_post = [
             description: req.body.description,
             price: req.body.price,
            });
-
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/error messages.
-
             // Get all items and categories for form.
             async.parallel({
                 categories(callback) {
@@ -111,65 +106,40 @@ exports.item_create_post = [
     }
 ];
 
-// display Item delete form on GET
 exports.item_delete_get = function (req, res, next) {
     async.parallel(
       {
         item: function (callback) {
-          Item.findById(req.params.id).exec(callback);
-        },
-        categories: function (callback) {
-          Category.find({ categories: req.params.id }).exec(callback);
+          Item.findById(req.params.id)
+            .populate("title")
+            .exec(callback);
         },
       },
       function (err, results) {
         if (err) {
           return next(err);
         }
-        if (results.items == null) {
+        if (results.item == null) {
           // No results.
           res.redirect("/catalog/items");
         }
-        // Successful, so render.
         res.render("item_delete", {
           title: "Delete Item",
-          items: results.items,
-          categories: results.categories,
+          item: results.item,
         });
       }
     );
   };
 
-// handle Item delete on POST
 exports.item_delete_post = function (req, res, next) {
-    async.parallel(
-      {
-        item: function (callback) {
-          Item.findById(req.body.itemid).exec(callback);
-        },
-        categories: function (callback) {
-          Category.find({ categories: req.body.itemid }).exec(callback);
-        },
-      },
-      function (err, results) {
-        if (err) {
-          return next(err);
-        }
-        // Success.
-        if (results.item_list.length > 0) {
-          Item.findByIdAndRemove(req.body.itemid, function deleteItem(err) {
-            if (err) {
-              return next(err);
-            }
-            // Success - go to items list.
-            res.redirect("/catalog/items");
-          });
-        }
-      }
-    );
-  };
+  Item.findByIdAndDelete(req.params.id, function deleteItem(err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/catalog/items");
+  })
+}
   
-
 // Display Item update form on GET.
 exports.item_update_get = function(req, res) {
     res.send("NOT IMPLEMENTED: Item update GET");
