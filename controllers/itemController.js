@@ -81,6 +81,7 @@ exports.item_create_post = [
             category: req.body.category,
             description: req.body.description,
             price: req.body.price,
+            _id: req.body.itemid
            });
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/error messages.
@@ -131,14 +132,21 @@ exports.item_delete_get = function (req, res, next) {
     );
   };
 
+// Handle film delete on POST.
 exports.item_delete_post = function (req, res, next) {
-  Item.findByIdAndDelete(req.params.id, function deleteItem(err) {
+  Item.findById(req.params.id).exec(function (err, results) {
     if (err) {
       return next(err);
     }
-    res.redirect("/catalog/items");
-  })
-}
+    Item.findByIdAndDelete(results, function deleteItem(err) {
+      if (err) {
+        return next(err);
+      }
+      // res.json("/items");
+      res.redirect("/catalog");
+    });
+  });
+};
   
 // Display Item update form on GET.
 exports.item_update_get = function(req, res) {
